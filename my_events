@@ -1,0 +1,5 @@
+#state|priority|category|title|description|due
+
+0|7|Programming|File IO|Get main.c to parse this line correctly|0
+
+#consider using date format (i.e. ...|Jul|7|2016|12|0|0 )

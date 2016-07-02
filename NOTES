@@ -1,3 +1,9 @@
 QTimer
 struct tm *
 QGraphicsItem <- see youtube video
+
+file io:
+ - getc() will get one character
+ - ungetc() puts it back to stream
+ - fseek(stream, 0, SEEK_SET) can reset position???
+    * or rewind() can do the same
