@@ -19,10 +19,6 @@ void AddEvent(int priority, char *category, char *title, char *description, stru
 void QuickAddEvent(char *title, struct tm due);
 void RemoveEvent(Event *event);
 
-// Debug Functions
-void PrintEvent(Event *event);
-void PrintEvents();
-
 // Event Struct Functions
 int EventGetState(Event *event);
 int EventGetPriority(Event *event);
