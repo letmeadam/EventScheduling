@@ -1,6 +1,6 @@
 
-plan: main.o events.o
-	gcc -Wall -Werror -g -o plan main.o events.o
+plan: main.o events.o timing.o
+	gcc -Wall -Werror -g -o plan main.o events.o timing.o
 
 main.o: main.c
 	gcc -Wall -Werror -c main.c

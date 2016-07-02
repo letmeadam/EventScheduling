@@ -4,15 +4,47 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef EVENTS_DEBUG_H
-#define go printf("DEBUG PROGRAM!\n");
-#endif
+
+// Debug Functions
+
+void PrintEvent(Event *event)
+{
+	fprintf(stdout, "\nEvent: %p\n", event);
+	fprintf(stdout, "\tstate\t\t%s\n", EventGetState(event) == EVENT_COMPLETE ? "COMPLETE" : "INCOMPLETE");
+	fprintf(stdout, "\tpriority\t%d\n", EventGetPriority(event));
+	fprintf(stdout, "\tcategory\t%s\n", EventGetCategory(event));
+	fprintf(stdout, "\ttitle\t\t%s\n", EventGetTitle(event));
+	fprintf(stdout, "\tdescription\t%s\n", EventGetDescription(event));
+
+	struct tm due = EventGetDue(event);
+	fprintf(stdout, "\tdue\t\t%s", asctime(&due));
+	due = TimeLeft(due);
+	fprintf(stderr, "\ttime left\t%d days, %d hours, %d minutes, and %d seconds\n", due.tm_mday, due.tm_hour, due.tm_min, due.tm_sec);
+	
+	fprintf(stdout, "\tnext\t\t%p\n", EventGetNext(event));
+	fprintf(stdout, "\tprior\t\t%p\n\n", EventGetPrior(event));
+}
+
+void PrintEvents()
+{
+	Event *eventPtr = events;
+
+	while (eventPtr)
+	{
+		PrintEvent(eventPtr);
+		//printf("*Event:\t%p\n\t*due: %s\n", eventPtr, asctime(&eventPtr->due));
+		eventPtr = EventGetNext(eventPtr);
+	}
+}
+
+
+// Main Testing Program
 
 int main() {
-	go
 	events = NULL;
-
 	struct tm *temp_time = malloc(sizeof(struct tm));
+
+    printf("DEBUG PROGRAM!\n");
 
 	*temp_time = SetTime(7, 7, 1995, 8, 8);
 	printf("%s", asctime(temp_time));
