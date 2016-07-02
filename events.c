@@ -1,17 +1,22 @@
 #include "events.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 typedef struct Event
 {
+	int state;
 	int priority;
 	char *category;
 	char *title;
 	char *description;
-	time_t due;
+	struct tm due;
 	Event *next;
 	Event *prior;
 } Event;
+
+
+// Helper Functions
 
 void InsertEvent(Event *event)
 {
@@ -66,11 +71,13 @@ void InsertEvent(Event *event)
 	}
 }
 
+
 // Event-Related Functions
-void AddEvent(int priority, char *category, char *title, char *description, time_t due)
+
+void AddEvent(int priority, char *category, char *title, char *description, struct tm due)
 {
 	Event *newEvent;
-	Event *eventPtr = events;
+	// Event *eventPtr = events;
 
 	if (NULL == (newEvent = malloc(sizeof(Event))))
 	{
@@ -78,6 +85,7 @@ void AddEvent(int priority, char *category, char *title, char *description, time
 		return;
 	}
 
+	newEvent->state = EVENT_PENDING;
 	newEvent->priority = priority;
 	newEvent->category = category;
 	newEvent->title = title;
@@ -85,17 +93,21 @@ void AddEvent(int priority, char *category, char *title, char *description, time
 	newEvent->due = due;
 	newEvent->next = newEvent->prior = NULL;
 
+	// printf("Before insert: %p\n", events);
 	InsertEvent(newEvent);
+	// printf("After insert: %p\n", events);
 }
 
 
-void QuickAddEvent(char *title, time_t due)
+void QuickAddEvent(char *title, struct tm due)
 {
 	AddEvent(0, "\0", title, "\0", due);
 }
 
 Event *CompareEvent(Event *event1, Event *event2)
 {
+	double diff = 0;
+
 	if (!event1 && !event2)
 		return NULL;
 	else if (!event1 && event2)
@@ -110,9 +122,10 @@ Event *CompareEvent(Event *event1, Event *event2)
 			return event1;
 		else
 		{
-			if (event1->due == event2->due)
+			diff = difftime(mktime(&event1->due), mktime(&event2->due));
+			if (0.0 == diff)
 				return NULL;
-			else if (event1->due < event2->due)
+			else if (0.0 > diff) //if event1 is due sooner
 				return event1;
 			else
 				return event2;
@@ -128,7 +141,7 @@ void RemoveEvent(Event * event)
 	 */
 	Event * eventPtr = events;
 
-	while (eventPtr && CompareEvent(evenPtr, event)) {
+	while (eventPtr && CompareEvent(eventPtr, event)) {
 		eventPtr = eventPtr->next;
 	}
 
@@ -156,17 +169,118 @@ void RemoveEvent(Event * event)
 	}
 }
 
-#ifdef EVENTS_DEBUG_H
+
+// Debug Functions
 
 void PrintEvent(Event *event)
 {
-	fprintf(stdout, "Event %p:\n", event);
+	fprintf(stdout, "\nEvent: %p\n", event);
+	fprintf(stdout, "\tstate\t\t%s\n", event->state == EVENT_COMPLETE ? "COMPLETE" : "INCOMPLETE");
 	fprintf(stdout, "\tpriority\t%d\n", event->priority);
 	fprintf(stdout, "\tcategory\t%s\n", event->category);
-	fprintf(stdout, "\title\t%s\n", event->title);
+	fprintf(stdout, "\ttitle\t\t%s\n", event->title);
 	fprintf(stdout, "\tdescription\t%s\n", event->description);
-	fprintf(stdout, "\tdue\t%ld\n", event->due);
-	fprintf(stdout, "\tnext\t%p\n", event->next);
-	fprintf(stdout, "\tprior\t%p\n", event->prior);
+	fprintf(stdout, "\tdue\t\t%s", asctime(&event->due));
+	struct tm *tLeft = calloc(1, sizeof(struct tm));
+	*tLeft = TimeLeft(event->due);
+	fprintf(stderr, "\ttime left\t%d days, %d hours, %d minutes, and %d seconds\n", tLeft->tm_mday, tLeft->tm_hour, tLeft->tm_min, tLeft->tm_sec);
+	fprintf(stdout, "\tnext\t\t%p\n", event->next);
+	fprintf(stdout, "\tprior\t\t%p\n\n", event->prior);
+	free(tLeft);
 }
-#endif
+
+void PrintEvents()
+{
+	Event *eventPtr = events;
+
+	while (eventPtr)
+	{
+		PrintEvent(eventPtr);
+		//printf("*Event:\t%p\n\t*due: %s\n", eventPtr, asctime(&eventPtr->due));
+		eventPtr = eventPtr->next;
+	}
+}
+
+
+// Event Struct Functions
+
+int EventGetState(Event *event)
+{
+	return event->state;
+}
+
+int EventGetPriority(Event *event)
+{
+	return event->priority;
+}
+
+char *EventGetCategory(Event *event)
+{
+	return event->category;
+}
+
+char *EventGetTitle(Event *event)
+{
+	return event->title;
+}
+
+char *EventGetDescription(Event *event)
+{
+	return event->description;
+}
+
+struct tm EventGetDue(Event *event)
+{
+	return event->due;
+}
+
+Event *EventGetNext(Event *event)
+{
+	return event->next;
+}
+
+Event *EventGetPrior(Event *event)
+{
+	return event->prior;
+}
+
+
+void EventSetState(Event *event, int state)
+{
+	event->state = state;
+}
+
+void EventSetPriority(Event *event, int priority)
+{
+	event->priority = priority;
+}
+
+void EventSetCategory(Event *event, char *category)
+{
+	event->category = category;
+}
+
+void EventSetTitle(Event *event, char *title)
+{
+	event->title = title;
+}
+
+void EventSetDescription(Event *event, char *description)
+{
+	event->description = description;
+}
+
+void EventSetDue(Event *event, struct tm due)
+{
+	event->due = due;
+}
+
+void EventSetNext(Event *event, Event *next)
+{
+	event->next = next;
+}
+
+void EventSetPrior(Event *event, Event *prior)
+{
+	event->prior = prior;
+}

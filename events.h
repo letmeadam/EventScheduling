@@ -1,19 +1,44 @@
 #ifndef EVENTS_H
+// /#include <time.h>
+#include "timing.h"
 
 #define EVENTS_H
 #define EVENTS_FILE "my_events"
 
-typedef struct Event;
+#define EVENT_PENDING	0
+#define EVENT_OVERDUE	1
+#define EVENT_COMPLETE	2
 
-// Event collection
-static Event *events = NULL;
+typedef struct Event Event;
 
-// Event-Related Functions
-void AddEvent(int priority, char *category, char *title, char *description, time_t due);
-void QuickAddEvent(char *title, time_t due);
-Event *RemoveEvent(Event *event);
-#endif
+// Event Collection
+Event *events;
 
-#ifdef EVENTS_DEBUG_H
+// Event Collection Functions
+void AddEvent(int priority, char *category, char *title, char *description, struct tm due);
+void QuickAddEvent(char *title, struct tm due);
+void RemoveEvent(Event *event);
+
+// Debug Functions
 void PrintEvent(Event *event);
+void PrintEvents();
+
+// Event Struct Functions
+int EventGetState(Event *event);
+int EventGetPriority(Event *event);
+char *EventGetCategory(Event *event);
+char *EventGetTitle(Event *event);
+char *EventGetDescription(Event *event);
+struct tm EventGetDue(Event *event);
+Event *EventGetNext(Event *event);
+Event *EventGetPrior(Event *event);
+
+void EventSetState(Event *event, int state);
+void EventSetPriority(Event *event, int priority);
+void EventSetCategory(Event *event, char *category);
+void EventSetTitle(Event *event, char *title);
+void EventSetDescription(Event *event, char *description);
+void EventSetDue(Event *event, struct tm due);
+void EventSetNext(Event *event, Event *next);
+void EventSetPrior(Event *event, Event *prior);
 #endif
