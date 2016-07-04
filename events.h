@@ -15,7 +15,7 @@ typedef struct Event Event;
 Event *events;
 
 // Event Collection Functions
-void AddEvent(int priority, char *category, char *title, char *description, struct tm due);
+Event *AddEvent(int priority, char *category, char *title, char *description, struct tm due);
 void QuickAddEvent(char *title, struct tm due);
 void RemoveEvent(Event *event);
 

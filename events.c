@@ -106,7 +106,7 @@ void InsertEvent(Event *event)
 
 // Event-Related Functions
 
-void AddEvent(int priority, char *category, char *title, char *description, struct tm due)
+Event *AddEvent(int priority, char *category, char *title, char *description, struct tm due)
 {
 	Event *newEvent;
 	// Event *eventPtr = events;
@@ -114,7 +114,7 @@ void AddEvent(int priority, char *category, char *title, char *description, stru
 	if (NULL == (newEvent = malloc(sizeof(Event))))
 	{
 		fprintf(stderr, "ERROR: Unable to malloc new Event.\n");
-		return;
+		return NULL;
 	}
 
 	newEvent->state = EVENT_PENDING;
@@ -128,6 +128,7 @@ void AddEvent(int priority, char *category, char *title, char *description, stru
 	// printf("Before insert: %p\n", events);
 	InsertEvent(newEvent);
 	// printf("After insert: %p\n", events);
+	return newEvent;
 }
 
 
@@ -148,6 +149,8 @@ void RemoveEvent(Event * event)
 		eventPtr = eventPtr->next;
 	}
 
+	// fprintf(stderr, "Event found: %p = %p\n", eventPtr, event);
+
 	if (!eventPtr)
 	{
 		fprintf(stderr, "WARNING: Event not found.\n");
@@ -156,10 +159,13 @@ void RemoveEvent(Event * event)
 
 	if (NULL == CompareEvent(eventPtr, event))
 	{
+		// fprintf(stderr, "Event->prior %p\n", eventPtr->prior);
 		if (eventPtr->prior)						//if prior exists
 			eventPtr->prior->next = eventPtr->next;		//prior's next points to current's next
 		else										//else current Event is head of list
 			events = eventPtr->next;
+
+		// fprintf(stderr, "Event->next %p\n", eventPtr->next);
 		if (eventPtr->next)							//if next exists
 			eventPtr->next->prior = eventPtr->prior;	//next's prior points to current's prior
 

@@ -11,10 +11,10 @@
 int main()
 {
 	FILE *filo = NULL;
-	int temp_state = EVENT_PENDING;
-	int temp_priority = 0;
-	char *temp_category, *temp_title, *temp_description;
-	time_t temp_due;
+	// int temp_state = EVENT_PENDING;
+	// int temp_priority = 0;
+	// char *temp_category, *temp_title, *temp_description;
+	// time_t temp_due;
 
 	printf("MAIN PROGRAM!\n");
 
@@ -22,6 +22,8 @@ int main()
 
 	if (NULL == filo)
 		fprintf(stderr, "\tERROR: Unable to open file \"%s\".\n", EVENT_FILE);
+
+	ReadEvents(filo);
 
 	// printf("\n1: %s\n", ReadLine(filo, 0));
 	// printf("\n2: %s\n", ReadLine(filo, ftell(filo)));
@@ -46,33 +48,70 @@ int main()
     // AddEvent(priority, category, title, description, *localtime(&due));
 	// printf("DONE!\n");
 
-	sscanf(ReadSeg(filo, 0, '|'), "%d", &temp_state);
-	sscanf(ReadSeg(filo, ftell(filo), '|'), "%d", &temp_priority);
-	// temp_priority = sprintf("%d", ReadSeg(filo, ftell(filo)));
-	temp_category = ReadSeg(filo, ftell(filo), '|');
-	temp_title = ReadSeg(filo, ftell(filo), '|');
-	temp_description = ReadSeg(filo, ftell(filo), '|');
-	// temp_due = (time_t) sprintf("%d", ReadSeg(filo, ftell(filo), '\n'));
-	sscanf(ReadSeg(filo, ftell(filo), '\n'), "%ld", &temp_due);
-	AddEvent(temp_priority, temp_category, temp_title, temp_description, *localtime(&temp_due));
-	EventSetState(events, temp_state);
+	// sscanf(ReadSeg(filo, 0, '|'), "%d", &temp_state);
+	// sscanf(ReadSeg(filo, ftell(filo), '|'), "%d", &temp_priority);
+	// // temp_priority = sprintf("%d", ReadSeg(filo, ftell(filo)));
+	// temp_category = ReadSeg(filo, ftell(filo), '|');
+	// temp_title = ReadSeg(filo, ftell(filo), '|');
+	// temp_description = ReadSeg(filo, ftell(filo), '|');
+	// // temp_due = (time_t) sprintf("%d", ReadSeg(filo, ftell(filo), '\n'));
+	// sscanf(ReadSeg(filo, ftell(filo), '\n'), "%ld", &temp_due);
+	// AddEvent(temp_priority, temp_category, temp_title, temp_description, *localtime(&temp_due));
+	// EventSetState(events, temp_state);
 
-	fprintf(stdout, "\nEvent: %p\n", events);
-	fprintf(stdout, "\tstate\t\t%s\n", EventGetState(events) == EVENT_COMPLETE ? "COMPLETE" : "INCOMPLETE");
-	fprintf(stdout, "\tpriority\t%d\n", EventGetPriority(events));
-	fprintf(stdout, "\tcategory\t%s\n", EventGetCategory(events));
-	fprintf(stdout, "\ttitle\t\t%s\n", EventGetTitle(events));
-	fprintf(stdout, "\tdescription\t%s\n", EventGetDescription(events));
+	while (events)
+	{
+		fprintf(stdout, "\nEvent: %p\n", events);
+		fprintf(stdout, "\tstate\t\t%s\n", EventGetState(events) == EVENT_COMPLETE ? "COMPLETE" : "INCOMPLETE");
+		fprintf(stdout, "\tpriority\t%d\n", EventGetPriority(events));
+		fprintf(stdout, "\tcategory\t%s\n", EventGetCategory(events));
+		fprintf(stdout, "\ttitle\t\t%s\n", EventGetTitle(events));
+		fprintf(stdout, "\tdescription\t%s\n", EventGetDescription(events));
 
-	struct tm t_due = EventGetDue(events);
-	fprintf(stdout, "\tdue\t\t%s", asctime(&t_due));
-	t_due = TimeLeft(t_due);
-	fprintf(stderr, "\ttime left\t%d days, %d hours, %d minutes, and %d seconds\n", t_due.tm_mday, t_due.tm_hour, t_due.tm_min, t_due.tm_sec);
+		struct tm t_due = EventGetDue(events);
+		fprintf(stdout, "\tdue\t\t%s", asctime(&t_due));
+		t_due = TimeLeft(t_due);
+		fprintf(stderr, "\ttime left\t%d days, %d hours, %d minutes, and %d seconds\n", t_due.tm_mday, t_due.tm_hour, t_due.tm_min, t_due.tm_sec);
 
-	// printf("%ld\n", time(NULL));
-	
-	// fprintf(stdout, "\tnext\t\t%p\n", EventGetNext(events));
-	// fprintf(stdout, "\tprior\t\t%p\n\n", EventGetPrior(events));
+		// printf("%ld\n", time(NULL));
+		
+		fprintf(stdout, "\tnext\t\t%p\n", EventGetNext(events));
+		fprintf(stdout, "\tprior\t\t%p\n\n", EventGetPrior(events));
+
+		if (EventGetNext(events))
+			events = EventGetNext(events);
+		else
+			break;
+	}
+
+	// fprintf(stderr, "%p\n", events);
+
+	while (EventGetPrior(events))
+		events = EventGetPrior(events);
+
+	// fprintf(stderr, "Hit 0\n");
+	RemoveEvent(EventGetNext(events));
+
+	while (events)
+	{
+		fprintf(stdout, "\nEvent: %p\n", events);
+		fprintf(stdout, "\tstate\t\t%s\n", EventGetState(events) == EVENT_COMPLETE ? "COMPLETE" : "INCOMPLETE");
+		fprintf(stdout, "\tpriority\t%d\n", EventGetPriority(events));
+		fprintf(stdout, "\tcategory\t%s\n", EventGetCategory(events));
+		fprintf(stdout, "\ttitle\t\t%s\n", EventGetTitle(events));
+		fprintf(stdout, "\tdescription\t%s\n", EventGetDescription(events));
+
+		struct tm t_due = EventGetDue(events);
+		fprintf(stdout, "\tdue\t\t%s", asctime(&t_due));
+		t_due = TimeLeft(t_due);
+		fprintf(stderr, "\ttime left\t%d days, %d hours, %d minutes, and %d seconds\n", t_due.tm_mday, t_due.tm_hour, t_due.tm_min, t_due.tm_sec);
+
+		// printf("%ld\n", time(NULL));
+		
+		fprintf(stdout, "\tnext\t\t%p\n", EventGetNext(events));
+		fprintf(stdout, "\tprior\t\t%p\n\n", EventGetPrior(events));
+		events = EventGetNext(events);
+	}
 
 	// free(filo);
 	fclose(filo);

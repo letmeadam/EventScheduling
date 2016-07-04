@@ -1,4 +1,5 @@
 #include "file_io.h"
+#include "events.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -84,4 +85,47 @@ char *ReadSeg(FILE *filo, long start, char target)
 char *ReadLine(FILE *filo, long start)
 {
 	return ReadSeg(filo, start, '\n');
+}
+
+void ReadEvent(FILE *filo)
+{
+	Event *new_event;
+	int temp_state = EVENT_PENDING;
+	int temp_priority = 0;
+	char *temp_category, *temp_title, *temp_description;
+	time_t temp_due;
+
+	sscanf(ReadSeg(filo, ftell(filo), '|'), "%d", &temp_state);
+	sscanf(ReadSeg(filo, ftell(filo), '|'), "%d", &temp_priority);
+	temp_category = ReadSeg(filo, ftell(filo), '|');
+	temp_title = ReadSeg(filo, ftell(filo), '|');
+	temp_description = ReadSeg(filo, ftell(filo), '|');
+	sscanf(ReadSeg(filo, ftell(filo), '\n'), "%ld", &temp_due);
+	
+	new_event = AddEvent(temp_priority, temp_category, temp_title, temp_description, *localtime(&temp_due));
+	EventSetState(new_event, temp_state);
+
+	// fprintf(stdout, "\nEvent: %p\n", events);
+	// fprintf(stdout, "\tstate\t\t%s\n", EventGetState(events) == EVENT_COMPLETE ? "COMPLETE" : "INCOMPLETE");
+	// fprintf(stdout, "\tpriority\t%d\n", EventGetPriority(events));
+	// fprintf(stdout, "\tcategory\t%s\n", EventGetCategory(events));
+	// fprintf(stdout, "\ttitle\t\t%s\n", EventGetTitle(events));
+	// fprintf(stdout, "\tdescription\t%s\n", EventGetDescription(events));
+
+	// struct tm t_due = EventGetDue(events);
+	// fprintf(stdout, "\tdue\t\t%s", asctime(&t_due));
+	// t_due = TimeLeft(t_due);
+	// fprintf(stderr, "\ttime left\t%d days, %d hours, %d minutes, and %d seconds\n", t_due.tm_mday, t_due.tm_hour, t_due.tm_min, t_due.tm_sec);
+}
+
+int ReadEvents(FILE *filo)
+{
+	int event_count = 0;
+
+	while (!feof(filo))
+	{
+		ReadEvent(filo);
+		event_count++;
+	}
+	return event_count;
 }
