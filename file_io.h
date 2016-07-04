@@ -1,3 +1,6 @@
 #include <stdio.h>
 
-#define IO_FORMAT "%d|%d|%s|%s|%s|%ld"
+void OpenFile(FILE *filo, char *file_name);
+long FindChar(FILE *filo, long start, char target);
+char *ReadSeg(FILE *filo, long start, char target);
+char *ReadLine(FILE *filo, long start);
