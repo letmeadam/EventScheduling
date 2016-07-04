@@ -2,16 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void OpenFile(FILE *filo, char *file_name)
-{
-	filo = fopen(file_name, "r+");
-
-	if (NULL == filo)
-		fprintf(stderr, "\tERROR: Unable to open file \"%s\".\n", file_name);
-	perror(NULL);
-}
-
-
 long FindChar(FILE *filo, long start, char target)
 {
 	unsigned char temp;

@@ -7,7 +7,7 @@
 
 int main()
 {
-	FILE *filo;// = malloc(sizeof(FILE));
+	FILE *filo = NULL;
 
 	printf("MAIN PROGRAM!\n");
 
@@ -15,7 +15,6 @@ int main()
 
 	if (NULL == filo)
 		fprintf(stderr, "\tERROR: Unable to open file \"%s\".\n", EVENT_FILE);
-	perror(NULL);
 
 
 	// fprintf(stderr, "Filo: %p\n", filo);
